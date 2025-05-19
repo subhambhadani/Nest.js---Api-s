@@ -9,6 +9,7 @@ import {
   Query,
   BadRequestException,
   ParseIntPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -51,15 +52,17 @@ export class UsersController {
   @Get(':id') // get user by id
   findOne(@Param('id', ParseIntPipe) id: number) {
     try {
+      console.log('Fetching user with ID:', id); // Log the ID being fetched
       return this.usersService.findOne(id);
     } catch (error) {
       console.error('Error occurred while fetching user:', error);
+      throw error;
     }
   }
 
   @Post() // create user
   create(
-    @Body()
+    @Body(ValidationPipe) // Use ValidationPipe to validate the incoming data
     createUserDto: CreateUserDto,
   ) {
     try {
@@ -73,7 +76,7 @@ export class UsersController {
   @Patch(':id') // update user
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body()
+    @Body(ValidationPipe)
     updateUserDto: UpdateUserDto,
   ) {
     try {

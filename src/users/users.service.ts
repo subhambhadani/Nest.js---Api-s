@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -32,13 +32,19 @@ export class UsersService {
   findOne(id: number) {
     try {
       const user = this.users.find((user) => user.id === id);
-      console.log('User:', user);
       if (!user) {
-        throw new Error(`User with ID ${id} not found.`);
+        throw new NotFoundException(`User with ID ${id} not found`);
       }
       return user;
     } catch (error) {
       console.error('Error occurred while fetching user:', error);
+
+      // Re-throw the error if it's an instance of an HTTP exception
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+
+      // Otherwise, throw a generic internal server error
       throw new Error('Unable to fetch user at this time.');
     }
   }
